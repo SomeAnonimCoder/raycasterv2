@@ -11,9 +11,13 @@ from filed import Field
 from player import Player
 from render import get_heights, create_image
 
+HEIGHT = 480
+WIDTH = 640
+
+
 root = Tk()
-root.geometry('640x480')
-canvas = Canvas(root, width=640, height=480)
+root.geometry('{}x{}'.format(WIDTH, HEIGHT))
+canvas = Canvas(root, width=WIDTH, height=HEIGHT)
 canvas.pack(fill=BOTH)
 
 player = Player(4, 4, 3.14159 / 4, 3.14159 / 3)
@@ -24,11 +28,11 @@ while (1):
     if is_pressed(keyboard.is_pressed("ESC")):
         sys.exit(-1)
     if is_pressed('w'):
-        player.x += 0.02 * cos(player.v_dir)
-        player.y += 0.02 * sin(player.v_dir)
-    elif is_pressed("s"):
         player.x -= 0.02 * cos(player.v_dir)
         player.y -= 0.02 * sin(player.v_dir)
+    elif is_pressed("s"):
+        player.x += 0.02 * cos(player.v_dir)
+        player.y += 0.02 * sin(player.v_dir)
     elif is_pressed("d"):
         player.v_dir += 0.1
     elif is_pressed("a"):
@@ -44,5 +48,5 @@ while (1):
     heights = get_heights(myMap, player)
     # add image
     image = ImageTk.PhotoImage(create_image(heights))
-    imagesprite = canvas.create_image(320, 240, image=image)
+    imagesprite = canvas.create_image(WIDTH/2, HEIGHT/2, image=image)
     canvas.update()

@@ -35,17 +35,12 @@ def get_heights(field, player):
 
         # select the closest collision of all
         dist = 1000 * H
-        x = None
-        y = None
         for collision in collisions:
             if None in collision: continue
             tmp = sqrt((collision[0] - player.x) ** 2 + (collision[1] - player.y) ** 2)
             if tmp < dist:
-                dist = tmp;
-                x = collision[0]
-                y = collision[1]
-
-        heights.append(1 / (dist + 0.0001))
+                dist = tmp
+        heights.append(1 / dist/cos(-alpha+player.v_dir) if 0 != dist else 1000)
     return heights
 
 
