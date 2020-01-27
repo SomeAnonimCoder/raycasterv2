@@ -1,5 +1,4 @@
-from math import cos, sin, pi
-from time import sleep
+from math import cos, sin
 from tkinter import *
 
 import keyboard
@@ -9,7 +8,7 @@ from keyboard import *
 # Initiation of screen and gamestate
 from filed import Field
 from player import Player
-from render import get_heights, create_image
+from render import get_heights, create_image, render_map
 
 HEIGHT = 480
 WIDTH = 640
@@ -46,7 +45,9 @@ while (1):
         except:
             pass
     heights = get_heights(myMap, player)
-    # add image
+    # add images
+    map_img = ImageTk.PhotoImage(render_map(myMap, player))
     image = ImageTk.PhotoImage(create_image(heights))
     imagesprite = canvas.create_image(WIDTH/2, HEIGHT/2, image=image)
+    mapsprite = canvas.create_image(map_img.width()/ 2, map_img.height() / 2, image=map_img)
     canvas.update()

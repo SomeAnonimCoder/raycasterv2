@@ -1,18 +1,27 @@
-from math import sin, cos, tan, sqrt
+from math import cos, tan, sqrt, sin, pi
 
+import PIL.Image, PIL.ImageDraw
 import numpy as np
 
 from filed import Field
 from player import Player
 
-import matplotlib.pyplot as plt
-from math import pi
-
-import PIL.Image
-
 H = 1
 HEIGHT = 480
 WIDTH = 640
+
+def render_map(map:Field, player):
+    h=20
+    frame = PIL.Image.new(size=[map.size()[0]*h, map.size()[1]*h], mode="L", color="White")
+    img = PIL.ImageDraw.Draw(frame)
+    for i in range(0, map.size()[0]):
+        for j in range(0, map.size()[1]):
+            if not map.is_empty([i,j]):
+                img.rectangle([i*h,j*h,(i+1)*h, (j+1)*h], fill="Black")
+    img.rectangle([player.x*h,player.y*h, player.x*h+5, player.y*h+5], fill="RED")
+    img.line([player.x*h, player.y*h,(player.x+10*sin(player.v_dir))*h,(player.y+10*cos(player.v_dir))*h], fill="RED")
+    return frame
+
 
 
 # get array of heights for each pixel column
@@ -100,8 +109,8 @@ def create_image(heights):
     frame = np.array(frame).transpose()
     return PIL.Image.fromarray(np.uint8(frame))
 
-# player = Player(x=4 * H, y=2 * H, v_dir=pi/4, v_field=pi/2)
-# field = Field()
+#player = Player(x=4 * H, y=2 * H, v_dir=pi/4, v_field=pi/2)
+#field = Field()
 # heights = get_heights(field, player)
 # plot heights - debug
 # plt.plot(heights)
@@ -114,3 +123,5 @@ def create_image(heights):
 # # show image
 # img = create_image(heights)
 # img.show()
+#map = render_map(field, player)
+# map.show()
