@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Field:
+cdef class Field:
     __field = np.array(
         [
             [1,   1,   1,   1,   1,   1,   1,   1,   1,   1],
@@ -13,15 +13,15 @@ class Field:
             [1,   0,   0,   0,   120, 0,   0,   0,   50,  1],
             [1,   1,   1,   1,   1,   1,   1,   1,   1,   1],
         ]
-    ).transpose()
+    )
 
 
 
-    def is_empty(self, cell):
-        return not self.__field[cell[0], cell[1]]
+    cpdef is_empty(self, int i, int j):
+        return not self.__field[i,j]
 
-    def get_color(self, i, j):
-        return self.__field[i, j] if self.__field[i, j] != 0 else 255
+    cpdef get_color(self, int i, int j):
+        return self.__field[i,j] if self.__field[i,j] != 0 else 255
 
-    def size(self):
+    cpdef size(self):
         return self.__field.shape

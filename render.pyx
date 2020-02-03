@@ -6,19 +6,17 @@ import numpy as np
 from field import Field
 from player import Player
 
-H = 1
-HEIGHT = 480
-WIDTH = 640
+cdef int H = 1
+cdef int HEIGHT = 480
+cdef int WIDTH = 640
 
-
-def render_map(map: Field, player):
+cpdef render_map(map, player):
     h = 20
     frame = PIL.Image.new(size=[map.size()[0] * h, map.size()[1] * h], mode="P", color="White")
     img = PIL.ImageDraw.Draw(frame)
     for i in range(0, map.size()[0]):
         for j in range(0, map.size()[1]):
-            if not map.is_empty([i, j]):
-                color = map.get_color(i,j)
+            if not map.is_empty(i, j):
                 img.rectangle([i * h, j * h, (i + 1) * h, (j + 1) * h], fill="GREY")
     img.rectangle([player.x * h, player.y * h, player.x * h + 5, player.y * h + 5], fill="RED")
     img.line(
@@ -26,11 +24,14 @@ def render_map(map: Field, player):
         fill="RED")
     return frame
 
-
 # get array of heights for each pixel column
-def get_heights(field, player):
+cpdef get_heights(field, player):
     heights = []
     # for ray in field of view
+    cdef float alpha
+    cdef float k
+    cdef float y_0
+    cdef float x, y, dist, tmp
     for i in range(0, WIDTH):
         alpha = player.v_dir - player.v_field / 2 + player.v_field * i / WIDTH
         k = tan(alpha)
@@ -41,9 +42,9 @@ def get_heights(field, player):
         for i in range(0, field.size()[0]):
             for j in range(0, field.size()[1]):
 
-                if field.is_empty([i, j]): continue
+                if field.is_empty(i, j): continue
                 x, y, dist = block_cross(i, j, k, y_0, alpha, player)
-                collisions.append([x, y, field.get_color(i,j)])
+                collisions.append([x, y, field.get_color(i, j)])
 
         # select the closest collision of all
         dist = 1000 * H
@@ -52,19 +53,20 @@ def get_heights(field, player):
             tmp = sqrt((collision[0] - player.x) ** 2 + (collision[1] - player.y) ** 2)
             if tmp < dist:
                 dist = tmp
-                color= collision[2]
+                color = collision[2]
         heights.append((1 / dist / cos(-alpha + player.v_dir) if 0 != dist else 1000, color))
     return heights
-
 
 # count coordinates of collision with block(i,j) for ray y = y_0 + kx
 def block_cross(i, j, k, y_0, alpha, player):
     # cell coordinates
-    x_cell = i * H
-    y_cell = j * H
+    cdef float x_cell = i * H
+    cdef float y_cell = j * H
     # find collision points
     collisions = []
 
+    cdef float x = 0
+    cdef float y = 0
     if k != 0:
         x = (y_cell - y_0) / k
         y = y_cell
@@ -90,8 +92,8 @@ def block_cross(i, j, k, y_0, alpha, player):
     # print(collisions)
     # select the closest collision for the block
     dist = 1000 * H
-    x = None
-    y = None
+    x = -1
+    y = -1
     for collision in collisions:
         tmp = sqrt((collision[0] - player.x) ** 2 + (collision[1] - player.y) ** 2)
         if tmp < dist:
@@ -101,8 +103,7 @@ def block_cross(i, j, k, y_0, alpha, player):
 
     return x, y, dist
 
-
-def create_image(heights):
+cpdef create_image(heights):
     frame = []
     for height, color in heights:
         col = [255 for _ in range(0, max(int(HEIGHT / 2 - int(height * 100)), 0))] + \
