@@ -1,9 +1,9 @@
 from math import cos, tan, sqrt, sin, pi
 
-import PIL.Image, PIL.ImageDraw
+import PIL.Image, PIL.ImageDraw, PIL.ImageColor
 import numpy as np
 
-from filed import Field
+from field import Field
 from player import Player
 
 H = 1
@@ -18,7 +18,8 @@ def render_map(map: Field, player):
     for i in range(0, map.size()[0]):
         for j in range(0, map.size()[1]):
             if not map.is_empty([i, j]):
-                img.rectangle([i * h, j * h, (i + 1) * h, (j + 1) * h], fill="#cccccc")
+                color = map.get_color(i,j)
+                img.rectangle([i * h, j * h, (i + 1) * h, (j + 1) * h], fill="GREY")
     img.rectangle([player.x * h, player.y * h, player.x * h + 5, player.y * h + 5], fill="RED")
     img.line(
         [player.x * h, player.y * h, (player.x - 1 * cos(player.v_dir)) * h, (player.y - 1 * sin(player.v_dir)) * h],
@@ -42,7 +43,7 @@ def get_heights(field, player):
 
                 if field.is_empty([i, j]): continue
                 x, y, dist = block_cross(i, j, k, y_0, alpha, player)
-                collisions.append([x, y])
+                collisions.append([x, y, field.get_color(i,j)])
 
         # select the closest collision of all
         dist = 1000 * H
@@ -51,7 +52,8 @@ def get_heights(field, player):
             tmp = sqrt((collision[0] - player.x) ** 2 + (collision[1] - player.y) ** 2)
             if tmp < dist:
                 dist = tmp
-        heights.append(1 / dist / cos(-alpha + player.v_dir)*field.get_height(i,j) if 0 != dist else 1000)
+                color= collision[2]
+        heights.append((1 / dist / cos(-alpha + player.v_dir) if 0 != dist else 1000, color))
     return heights
 
 
@@ -60,7 +62,6 @@ def block_cross(i, j, k, y_0, alpha, player):
     # cell coordinates
     x_cell = i * H
     y_cell = j * H
-
     # find collision points
     collisions = []
 
@@ -103,18 +104,24 @@ def block_cross(i, j, k, y_0, alpha, player):
 
 def create_image(heights):
     frame = []
-    for i in heights:
-        col = [255 for _ in range(0, max(int(HEIGHT / 2 - int(i * 100)), 0))] + \
-              [0 for _ in range(0, min(int(i * 100), int(HEIGHT / 2)))] + \
-              [127 for _ in range(0, int(HEIGHT / 2))]
-        frame += [col]
+    for height, color in heights:
+        col = [255 for _ in range(0, max(int(HEIGHT / 2 - int(height * 100)), 0))] + \
+              [color for _ in range(0, min(int(height * 100), int(HEIGHT / 2)))] + \
+              [color for _ in range(0, min(int(height * 40), int(HEIGHT / 2)))] + \
+              [127 for _ in range(0, max(int(HEIGHT / 2 - int(height * 40)), 0))]
+        frame.append(col)
     frame = np.array(frame).transpose()
     return PIL.Image.fromarray(np.uint8(frame))
 
-# player = Player(x=4 * H, y=2 * H, v_dir=pi/4, v_field=pi/2)
+#
+# player = Player(6, 6, 3.14159 / 4, 3.14159 / 3)
 # field = Field()
 # heights = get_heights(field, player)
-# plot heights - debug
+#
+# # plot heights - debug
+# #
+# import matplotlib.pyplot as plt
+#
 # plt.plot(heights)
 # plt.show()
 #

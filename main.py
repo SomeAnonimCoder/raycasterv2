@@ -6,9 +6,10 @@ from PIL import ImageTk
 from keyboard import *
 
 # Initiation of screen and gamestate
-from filed import Field
+from field import Field
 from player import Player
 from render import get_heights, create_image, render_map
+
 
 HEIGHT = 480
 WIDTH = 640
@@ -19,25 +20,31 @@ root.geometry('{}x{}'.format(WIDTH, HEIGHT))
 canvas = Canvas(root, width=WIDTH, height=HEIGHT)
 canvas.pack(fill=BOTH)
 
-player = Player(4, 4, 3.14159 / 4, 3.14159 / 3)
+player = Player(1.5, 1.5, 3.14159 / 4, 3.14159 / 3)
 myMap = Field()
 
-while (1):
-    #moving or exiting if some keys pressed
-    if is_pressed(keyboard.is_pressed("ESC")):
-        sys.exit(-1)
-    if is_pressed('w'):
-        player.x -= 0.02 * cos(player.v_dir)
-        player.y -= 0.02 * sin(player.v_dir)
-    elif is_pressed("s"):
-        player.x += 0.02 * cos(player.v_dir)
-        player.y += 0.02 * sin(player.v_dir)
-    elif is_pressed("d"):
-        player.v_dir += 0.1
-    elif is_pressed("a"):
-        player.v_dir -= 0.1
+k=0
 
-    #player.v_dir -= 0.1
+while 1:
+    # #moving or exiting if some keys pressed
+    # if is_pressed(keyboard.is_pressed("ESC")):
+    #     print(k)
+    #     sys.exit(-1)
+    # if is_pressed('w'):
+    #     player.x -= 0.05 * cos(player.v_dir)
+    #     player.y -= 0.05 * sin(player.v_dir)
+    # if is_pressed("s"):
+    #     player.x += 0.05 * cos(player.v_dir)
+    #     player.y += 0.05 * sin(player.v_dir)
+    # if is_pressed("d"):
+    #     player.v_dir += 0.1
+    # if is_pressed("a"):
+    #     player.v_dir -= 0.1
+
+    player.v_dir -= 0.1
+
+    k+=1
+    if k>100: sys.exit(0)
     # remove old images from canvas
     for k in canvas.children:
         try:
