@@ -139,7 +139,7 @@ cpdef create_image(field, player):
             frame[j][i] = 255
 
         for j in range(wall_bottom, wall_top):
-            frame[j][i] = 0
+            frame[j][i] = color
 
         for j in range(wall_top, HEIGHT):
             frame[j][i] = 127
