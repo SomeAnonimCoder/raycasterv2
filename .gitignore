@@ -1,0 +1,5 @@
+./build
+*.cf
+*.so
+./.idea
+./venv*
