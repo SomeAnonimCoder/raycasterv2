@@ -14,6 +14,7 @@ cdef int WIDTH = 640
 
 cpdef render_map(map, player):
     h = 20
+
     frame = PIL.Image.new(size=[map.size()[0] * h, map.size()[1] * h], mode="P", color="White")
     img = PIL.ImageDraw.Draw(frame)
     for i in range(0, map.size()[0]):
@@ -34,7 +35,10 @@ ctypedef Column column
 cdef column heights[640]
 
 
-# get array of heights for each pixel column
+"""
+Get array of heights for each pixel column
+Arguments: field and player objects
+"""
 cdef column* get_heights(field, player):
     # for ray in field of view
     cdef float alpha
@@ -49,7 +53,7 @@ cdef column* get_heights(field, player):
         y_0 = player.y - k * player.x
 
         collisions = []
-        # for each cell in map
+        # for each cell in map get collision wiht it, if exists
         for i in range(0, field.size()[0]):
             for j in range(0, field.size()[1]):
 
@@ -68,10 +72,13 @@ cdef column* get_heights(field, player):
         col.height = 1 / dist / cos(-alpha + player.v_dir) if 0 != dist and cos(player.v_dir-alpha)!=0 else 1000
         col.color = color
         heights[ray_num] = col
-        #print("creating",ray_num, col.height, col.color)
     return heights
 
-# count coordinates of collision with block(i,j) for ray y = y_0 + kx
+""" 
+Count coordinates of collision with block(i,j) for ray y = y_0 + kx
+
+Return: x,y,dist - coordinates of collision and distance from player to collision
+"""
 cdef block_cross(int i, int j, float k, float y_0, float alpha, player):
     # cell coordinates
     cdef float x_cell = i * H
@@ -103,7 +110,6 @@ cdef block_cross(int i, int j, float k, float y_0, float alpha, player):
     if y_cell <= y <= y_cell + H and (x - player.x) / cos(alpha) < 0:
         collisions.append((x, y))
 
-    # print(collisions)
     # select the closest collision for the block
     dist = 1000 * H
     x = -1
@@ -128,8 +134,6 @@ cpdef create_image(field, player):
         height = heights[i].height
         color = heights[i].color
 
-        #print(i, height, color)
-
         wall_top = int(HEIGHT/2+height*100)
         if wall_top > HEIGHT: wall_top=HEIGHT
         wall_bottom = int(HEIGHT/2 - height*40)
@@ -147,24 +151,3 @@ cpdef create_image(field, player):
 
     return PIL.Image.fromarray(np.uint8(frame))
 
-#
-# player = Player(6, 6, 3.14159 / 4, 3.14159 / 3)
-# field = Field()
-# heights = get_heights(field, player)
-#
-# # plot heights - debug
-# #
-# import matplotlib.pyplot as plt
-#
-# plt.plot(heights)
-# plt.show()
-#
-# # test fps(75, omg!)
-# # for i in range(0,1000):
-# #     heights = render(field, player)
-#
-# # show image
-# img = create_image(heights)
-# img.show()
-# map = render_map(field, player)
-# map.show()
